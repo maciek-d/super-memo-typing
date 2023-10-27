@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "SuperMemoTyping",
+    "version": "1.0",
+    "description": "Allow user to type a SuperMemo flashcard answers.",
+    "icons": {
+        "48": "icons/border-48.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.supermemo.com/en/app/learn/*"
+            ],
+            "js": [
+                "super.js"
+            ]
+        }
+    ]
+}
