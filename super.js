@@ -91,26 +91,6 @@ floatingDiv.style.opacity = '0.9';
 
 document.body.appendChild(floatingDiv);
 
-function calculateStringSimilarity(input, answer) {
-
-    // Convert both strings to lowercase for case-insensitive comparison
-    const lowerInput = input.toLowerCase().replace(/\s+/g, ' ');
-    const lowerAnswer = answer.toLowerCase().replace(/\s+/g, ' ');
-
-    const maxLength = Math.max(lowerInput.length, lowerAnswer.length);
-    if (maxLength === 0) return 100;
-    let common = 0;
-
-    for (let [i, j] = [0, 0]; j < maxLength; j++) {
-        if (lowerInput[i] === lowerAnswer[j]) {
-            common++;
-            i++;
-        }
-    }
-
-    const similarity = (common / maxLength) * 100;
-    return similarity;
-}
 
 function stripHtmlTags(input) {
     return input.replace(/<\/?[^>]+(>|$)/g, "");

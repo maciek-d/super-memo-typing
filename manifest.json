@@ -12,7 +12,10 @@
                 "*://*.supermemo.com/en/app/learn/*"
             ],
             "js": [
-                "super.js"
+                "stringHelpers.js",
+                "ui.js",
+                "listeners.js",
+                "main.js"
             ]
         }
     ]
