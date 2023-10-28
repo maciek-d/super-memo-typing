@@ -1,24 +1,7 @@
 
-//  function calculateStringSimilarity(input, answer) {
-
-//     // Convert both strings to lowercase for case-insensitive comparison
-//     const lowerInput = input.toLowerCase().replace(/\s+/g, ' ');
-//     const lowerAnswer = answer.toLowerCase().replace(/\s+/g, ' ');
-
-//     const maxLength = Math.max(lowerInput.length, lowerAnswer.length);
-//     if (maxLength === 0) return 100;
-//     let common = 0;
-
-//     for (let [i, j] = [0, 0]; j < maxLength; j++) {
-//         if (lowerInput[i] === lowerAnswer[j]) {
-//             common++;
-//             i++;
-//         }
-//     }
-
-//     const similarity = (common / maxLength) * 100;
-//     return similarity;
-// }
+function stripHtmlTags(input) {
+    return input.replace(/<\/?[^>]+(>|$)/g, "");
+}
 
 function calculateStringSimilarity(input, answer) {
     const lowerInput = input.toLowerCase().replace(/\s+/g, ' ');
@@ -47,35 +30,82 @@ function calculateStringSimilarity(input, answer) {
     return similarity;
 }
 
+function getMatchingSequences(str1, str2) {
+    let findLongestSubsequence = function (s1, s2) {
+        let maxLen = 0;
+        let endIndex1 = 0;
+        let endIndex2 = 0;
+
+        const dp = Array(s1.length + 1).fill(0).map(() => Array(s2.length + 1).fill(0));
+
+        for (let i = 1; i <= s1.length; i++) {
+            for (let j = 1; j <= s2.length; j++) {
+                if (s1[i - 1] === s2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                    if (dp[i][j] > maxLen) {
+                        maxLen = dp[i][j];
+                        endIndex1 = i;
+                        endIndex2 = j;
+                    }
+                } else {
+                    dp[i][j] = 0;
+                }
+            }
+        }
+
+        return maxLen === 0 ? null : {
+            match: s1.substring(endIndex1 - maxLen, endIndex1),
+            index1: endIndex1 - maxLen,
+            index2: endIndex2 - maxLen,
+            length: maxLen
+        };
+    };
+
+    let recursiveFind = function (s1, s2, offset1, offset2) {
+        const match = findLongestSubsequence(s1, s2);
+        if (!match) return [];
+
+        match.index1 += offset1;
+        match.index2 += offset2;
+
+        const beforeStr1 = s1.substring(0, match.index1 - offset1);
+        const beforeStr2 = s2.substring(0, match.index2 - offset2);
+
+        const afterStr1 = s1.substring(match.index1 + match.length - offset1);
+        const afterStr2 = s2.substring(match.index2 + match.length - offset2);
+
+        return [
+            ...recursiveFind(beforeStr1, beforeStr2, offset1, offset2),
+            match,
+            ...recursiveFind(afterStr1, afterStr2, match.index1 + match.length, match.index2 + match.length)
+        ];
+    };
+
+    return recursiveFind(str1, str2, 0, 0).sort((a, b) => a.index2 - b.index2);
+}
+
 function highlightDifferences(answer, userAnswer) {
+    const matches = getMatchingSequences(answer, userAnswer);
     let result = '';
-    let aIdx = 0;
     let uIdx = 0;
 
-    while (uIdx < userAnswer.length) {
-        if (aIdx < answer.length && answer[aIdx] === userAnswer[uIdx]) {
-            // Match found
-            let match = '';
-            while (aIdx < answer.length && uIdx < userAnswer.length && answer[aIdx] === userAnswer[uIdx]) {
-                match += userAnswer[uIdx];
-                aIdx++;
-                uIdx++;
-            }
-            result += '<span style="color:green;">' + match + '</span>';
-        } else {
-            // Mismatch found
-            let mismatch = '';
-            while (uIdx < userAnswer.length && (aIdx >= answer.length || answer[aIdx] !== userAnswer[uIdx])) {
-                mismatch += userAnswer[uIdx];
-                uIdx++;
-            }
-            result += '<span style="color:red;">' + mismatch + '</span>';
+    for (const match of matches) {
+        // Handle the mismatched segment before the match
+        if (match.index2 > uIdx) {
+            result += '<span style="color:red;">' + userAnswer.slice(uIdx, match.index2) + '</span>';
         }
+
+        // Handle the matched segment
+        result += '<span style="color:green;">' + match.match + '</span>';
+
+        // Move the pointers
+        uIdx = match.index2 + match.length;
+    }
+
+    // Handle any remaining mismatched segment in the userAnswer
+    if (uIdx < userAnswer.length) {
+        result += '<span style="color:red;">' + userAnswer.slice(uIdx) + '</span>';
     }
 
     return result;
-}
-
-function stripHtmlTags(input) {
-    return input.replace(/<\/?[^>]+(>|$)/g, "");
 }

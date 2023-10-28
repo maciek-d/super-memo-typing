@@ -52,13 +52,13 @@ function addTextAreaListener(textAreaElement, handleKeydown) {
                         answerDiv.style.height = '0px';
                         textAreaElement.style.height = '100px';
 
-                        if (!isCorrectAnswer && similarityPercentage >= 93) {
-                            const btnAlmostKnow = document.querySelector('.almost');
-                            triggerClick(btnAlmostKnow);
-                        } else if (!isCorrectAnswer) {
-                            const btnDontKnow = document.querySelector('.dont-know');
-                            triggerClick(btnDontKnow);
-                        }
+                        // if (!isCorrectAnswer && similarityPercentage >= 93) {
+                        //     const btnAlmostKnow = document.querySelector('.almost');
+                        //     triggerClick(btnAlmostKnow);
+                        // } else if (!isCorrectAnswer) {
+                        //     const btnDontKnow = document.querySelector('.dont-know');
+                        //     triggerClick(btnDontKnow);
+                        // }
                     } else if (elapsedTime >= maxTime) {
                         console.log("Timed out waiting for the answer");
                         clearInterval(interval);
