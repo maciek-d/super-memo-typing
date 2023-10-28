@@ -1,5 +1,5 @@
 
-function addTextAreaListener(textAreaElement, handleKeydown) {
+function addTextAreaListener(textAreaElement, answerDiv) {
 
     textAreaElement.addEventListener('keydown', async (event) => {
         // todo prevent default handler for keypress keydown when textAreaElement is in focus
@@ -9,6 +9,9 @@ function addTextAreaListener(textAreaElement, handleKeydown) {
             return;
         }
         if (event.key === 'Enter') {
+            // Potentially visible from timeout hide again in case of another timeout  
+            answerDiv.style.visibility = 'hidden';
+
             let checkButton = document.querySelector('button.nav-btn.action-btn');
             if (checkButton) {
                 checkButton.click();
@@ -25,42 +28,43 @@ function addTextAreaListener(textAreaElement, handleKeydown) {
                         const userAnswer = textAreaElement.value.trim();
                         const answer = stripHtmlTags(answerElement.textContent.trim());
 
-                        console.log(userAnswer, answer);
                         const similarityPercentage = calculateStringSimilarity(userAnswer, answer);
                         textAreaElement.value = '';
 
                         const highlightAnswer = highlightDifferences(answer, userAnswer);
-                        textAreaElement.style.height = '20px';
+                        textAreaElement.style.height = '30px';
                         answerDiv.style.height = '100px';
                         answerDiv.style.visibility = 'visible';
                         answerDiv.innerHTML = `${answer} <br/>${highlightAnswer} <br/>similarity ${similarityPercentage.toFixed(2)}%`;
                         const isCorrectAnswer = similarityPercentage === 100;
                         if (isCorrectAnswer) {
+                            textAreaElement.style.visibility = 'hidden';
                             const btnKnow = document.querySelector('.know');
                             triggerClick(btnKnow);
-                        }
-
-                        isCorrectAnswer || await waitForEnterPress(textAreaElement);
-                        if (isCorrectAnswer) {
-                            textAreaElement.style.height = '0px';
                             await sleep(1750);
                         } else {
                             textAreaElement.placeholder = 'Press Enter For Next Question';
                         }
 
+                        isCorrectAnswer || await waitForEnterPress(textAreaElement);
+
                         textAreaElement.placeholder = 'Type your answer and press Enter to submit (ctr for new line)';
+                        answerDiv.style.visibility = 'hidden';
                         answerDiv.style.height = '0px';
+                        textAreaElement.style.visibility = 'visible';
                         textAreaElement.style.height = '100px';
 
-                        // if (!isCorrectAnswer && similarityPercentage >= 93) {
-                        //     const btnAlmostKnow = document.querySelector('.almost');
-                        //     triggerClick(btnAlmostKnow);
-                        // } else if (!isCorrectAnswer) {
-                        //     const btnDontKnow = document.querySelector('.dont-know');
-                        //     triggerClick(btnDontKnow);
-                        // }
+                        if (!isCorrectAnswer && similarityPercentage >= 93) {
+                            const btnAlmostKnow = document.querySelector('.almost');
+                            triggerClick(btnAlmostKnow);
+                        } else if (!isCorrectAnswer) {
+                            const btnDontKnow = document.querySelector('.dont-know');
+                            triggerClick(btnDontKnow);
+                        }
                     } else if (elapsedTime >= maxTime) {
-                        console.log("Timed out waiting for the answer");
+                        answerDiv.style.height = '30px';
+                        answerDiv.style.visibility = 'visible';
+                        answerDiv.innerHTML = `Timed out waitig for an answer`;
                         clearInterval(interval);
                     }
                 }, checkInterval);

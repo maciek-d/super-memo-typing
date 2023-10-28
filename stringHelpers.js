@@ -4,8 +4,8 @@ function stripHtmlTags(input) {
 }
 
 function calculateStringSimilarity(input, answer) {
-    const lowerInput = input.toLowerCase().replace(/\s+/g, ' ');
-    const lowerAnswer = answer.toLowerCase().replace(/\s+/g, ' ');
+    const lowerInput = input.toLowerCase().replace(/\s+/g, '');
+    const lowerAnswer = answer.toLowerCase().replace(/\s+/g, '');
 
     const lenInput = lowerInput.length;
     const lenAnswer = lowerAnswer.length;
@@ -30,142 +30,83 @@ function calculateStringSimilarity(input, answer) {
     return similarity;
 }
 
-function getLCS(str1, str2) {
-    const matrix = Array(str1.length + 1).fill(null).map(() => Array(str2.length + 1).fill(0));
+// This function isnt perfect but it should work in most cases.
+function getMatchingSequences(str1, str2) {
+    let findLongestSubsequence = function (s1, s2) {
+        let maxLen = 0;
+        let endIndex1 = 0;
+        let endIndex2 = 0;
 
-    for (let i = 0; i <= str1.length; i++) {
-        for (let j = 0; j <= str2.length; j++) {
-            if (i === 0 || j === 0) {
-                matrix[i][j] = 0;
-            } else if (str1[i - 1] === str2[j - 1]) {
-                matrix[i][j] = matrix[i - 1][j - 1] + 1;
-            } else {
-                matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+        const dp = Array(s1.length + 1).fill(0).map(() => Array(s2.length + 1).fill(0));
+
+        for (let i = 1; i <= s1.length; i++) {
+            for (let j = 1; j <= s2.length; j++) {
+                if (s1[i - 1] === s2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                    if (dp[i][j] > maxLen) {
+                        maxLen = dp[i][j];
+                        endIndex1 = i;
+                        endIndex2 = j;
+                    }
+                } else {
+                    dp[i][j] = 0;
+                }
             }
         }
-    }
 
-    let i = str1.length, j = str2.length;
-    const lcs = [];
-    while (i > 0 && j > 0) {
-        if (str1[i - 1] === str2[j - 1]) {
-            lcs.unshift(str1[i - 1]);
-            i--;
-            j--;
-        } else if (matrix[i - 1][j] > matrix[i][j - 1]) {
-            i--;
-        } else {
-            j--;
-        }
-    }
+        return maxLen === 0 ? null : {
+            match: s1.substring(endIndex1 - maxLen, endIndex1),
+            index1: endIndex1 - maxLen,
+            index2: endIndex2 - maxLen,
+            length: maxLen
+        };
+    };
 
-    return lcs.join('');
+    let recursiveFind = function (s1, s2, offset1, offset2) {
+        const match = findLongestSubsequence(s1, s2);
+        if (!match) return [];
+
+        match.index1 += offset1;
+        match.index2 += offset2;
+
+        const beforeStr1 = s1.substring(0, match.index1 - offset1);
+        const beforeStr2 = s2.substring(0, match.index2 - offset2);
+
+        const afterStr1 = s1.substring(match.index1 + match.length - offset1);
+        const afterStr2 = s2.substring(match.index2 + match.length - offset2);
+
+        return [
+            ...recursiveFind(beforeStr1, beforeStr2, offset1, offset2),
+            match,
+            ...recursiveFind(afterStr1, afterStr2, match.index1 + match.length, match.index2 + match.length)
+        ];
+    };
+
+    return recursiveFind(str1, str2, 0, 0).sort((a, b) => a.index2 - b.index2);
 }
-
 
 function highlightDifferences(answer, userAnswer) {
-    const lcs = getLCS(answer, userAnswer);
-    let lcsIndex = 0;
-    const result = [];
+    const matches = getMatchingSequences(answer, userAnswer);
+    let result = '';
+    let uIdx = 0;
 
-    for (let char of userAnswer) {
-        if (lcsIndex < lcs.length && char === lcs[lcsIndex]) {
-            result.push(`<span style="color:green;">${char}</span>`);
-            lcsIndex++;
-        } else {
-            result.push(`<span style="color:red;">${char}</span>`);
+    for (const match of matches) {
+        // Handle the mismatched segment before the match
+        if (match.index2 > uIdx) {
+            result += '<span style="color:red;">' + userAnswer.slice(uIdx, match.index2) + '</span>';
         }
+
+        // Handle the matched segment
+        result += '<span style="color:green;">' + match.match + '</span>';
+
+        // Move the pointers
+        uIdx = match.index2 + match.length;
     }
 
-    return result.join('');
-}
-
-
-const wordsAndTestCases = {
-
-    "Indonesia": [
-        "Indoonneesia",
-        "Indopnesia",
-        "IndonXesia",
-        "IXndonesia",
-        "Idnonesia",
-        "Inodnesia",
-        "donesia",
-        "Indones",
-        "IdnonesXia",
-        "IndoXnesiY",
-        "IXdoonesia",
-        "IndonesiaIndonesia",
-        "IndoneIndonesia",
-        "InXYZesia",
-        "iNDoNesia",
-        "INDONESia",
-        "IndONeSiA",
-        "InDoPNesia"
-    ],
-    "Universe": [
-        "Un1verse",
-        "Univese",
-        "Uinverse",
-        "Univeres",
-        "Univrse",
-        "UUniverse",
-        "UniveUniverse",
-        "UnivXYZerse",
-        "UnivErse",
-        "UNIVERSe",
-        "UnIVErSE",
-        "UniVepRse"
-    ],
-    "Galaxy": [
-        "Galaxxy",
-        "Gaaxy",
-        "Glaxy",
-        "Galax",
-        "Galayx",
-        "GGalaxy",
-        "GalaGalaxy",
-        "GalXYZaxy",
-        "GaLaXy",
-        "GALAXy",
-        "GAlAXY",
-        "GAlaXyY"
-    ],
-    "Phenomenon": [
-        "Phenomenonn",
-        "Pheomenon",
-        "Phenomnon",
-        "Phenomeno",
-        "Phenonemon",
-        "PPhenomenon",
-        "PhenoPhenomenon",
-        "PhenomXYZenon",
-        "PHeNOMeNon",
-        "PHENOMENOn",
-        "PHenOMeNON",
-        "PhenOMeNoNn"
-    ],
-    "Spectacular": [
-        "Specttacular",
-        "Spectaular",
-        "Spctacular",
-        "Spectculr",
-        "Spectaculr",
-        "SSpectacular",
-        "SpectaSpectacular",
-        "SpectacXYZular",
-        "SPecTACUlar",
-        "SPECTACULAr",
-        "SpECTAcULAR",
-        "SpecTAcuLArR"
-    ]
-};
-
-for (const [word, testCases] of Object.entries(wordsAndTestCases)) {
-    for (const testCase of testCases) {
-        console.log(`word: ${word} case: ${testCase} -> `);
-        console.log(highlightDifferences(word, testCase));
-        console.log('----------');
+    // Handle any remaining mismatched segment in the userAnswer
+    if (uIdx < userAnswer.length) {
+        result += '<span style="color:red;">' + userAnswer.slice(uIdx) + '</span>';
     }
-    console.log('====================');
+
+    return result;
 }

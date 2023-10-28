@@ -19,7 +19,7 @@ function createUI() {
     const width = 330;
     const height = 125;
 
-    floatingDiv.style.top = `calc(85% - ${height / 2}px)`;
+    floatingDiv.style.top = `calc(80% - ${height / 2}px)`;
     floatingDiv.style.left = `calc(50% - ${width / 2}px)`;
     floatingDiv.style.padding = '10px';
     floatingDiv.style.zIndex = '9999';
