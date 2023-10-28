@@ -1,4 +1,4 @@
-
+// I am not using bundler so all the files are loaded by manifest.json
 
 const { floatingDiv, textAreaElement, answerDiv } = createUI();
 
