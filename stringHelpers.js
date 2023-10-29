@@ -87,17 +87,24 @@ function getMatchingSequences(str1, str2) {
 
 function highlightDifferences(answer, userAnswer) {
     const matches = getMatchingSequences(answer, userAnswer);
-    let result = '';
+
+    const resultDiv = document.createElement('div');
     let uIdx = 0;
 
     for (const match of matches) {
         // Handle the mismatched segment before the match
         if (match.index2 > uIdx) {
-            result += '<span style="color:red;">' + userAnswer.slice(uIdx, match.index2) + '</span>';
+            let span = document.createElement('span');
+            span.style.color = 'red';
+            span.textContent = userAnswer.slice(uIdx, match.index2);
+            resultDiv.appendChild(span);
         }
 
         // Handle the matched segment
-        result += '<span style="color:green;">' + match.match + '</span>';
+        let matchSpan = document.createElement('span');
+        matchSpan.style.color = 'green';
+        matchSpan.textContent = match.match;
+        resultDiv.appendChild(matchSpan);
 
         // Move the pointers
         uIdx = match.index2 + match.length;
@@ -105,8 +112,11 @@ function highlightDifferences(answer, userAnswer) {
 
     // Handle any remaining mismatched segment in the userAnswer
     if (uIdx < userAnswer.length) {
-        result += '<span style="color:red;">' + userAnswer.slice(uIdx) + '</span>';
+        let span = document.createElement('span');
+        span.style.color = 'red';
+        span.textContent = userAnswer.slice(uIdx);
+        resultDiv.appendChild(span);
     }
 
-    return result;
+    return resultDiv;
 }

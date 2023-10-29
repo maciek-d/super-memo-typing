@@ -46,14 +46,6 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                             textAreaElement.placeholder = 'Press Enter For Next Question';
                         }
 
-                        isCorrectAnswer || await waitForEnterPress(textAreaElement);
-
-                        textAreaElement.placeholder = 'Type your answer and press Enter to submit (ctr for new line)';
-                        answerDiv.style.visibility = 'hidden';
-                        answerDiv.style.height = '0px';
-                        textAreaElement.style.visibility = 'visible';
-                        textAreaElement.style.height = '100px';
-
                         if (!isCorrectAnswer && similarityPercentage >= 93) {
                             const btnAlmostKnow = document.querySelector('.almost');
                             triggerClick(btnAlmostKnow);
@@ -61,6 +53,14 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                             const btnDontKnow = document.querySelector('.dont-know');
                             triggerClick(btnDontKnow);
                         }
+
+                        isCorrectAnswer || await waitForEnterPress(textAreaElement);
+
+                        textAreaElement.placeholder = 'Type your answer and press Enter to submit (ctr for new line)';
+                        answerDiv.style.visibility = 'hidden';
+                        answerDiv.style.height = '0px';
+                        textAreaElement.style.visibility = 'visible';
+                        textAreaElement.style.height = '100px';
                     } else if (elapsedTime >= maxTime) {
                         answerDiv.style.height = '30px';
                         answerDiv.style.visibility = 'visible';
@@ -148,9 +148,7 @@ function updateAnswerDiv(answerDiv, answer, highlightAnswer, similarityPercentag
     answerDivElem.textContent = answer;
     answerDiv.appendChild(answerDivElem);
 
-    let highlightAnswerDivElem = document.createElement("div");
-    highlightAnswerDivElem.textContent = highlightAnswer;
-    answerDiv.appendChild(highlightAnswerDivElem);
+    answerDiv.appendChild(highlightAnswer);
 
     let similarityDivElem = document.createElement("div");
     similarityDivElem.textContent = `similarity ${similarityPercentage.toFixed(2)}%`;
