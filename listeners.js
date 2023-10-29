@@ -35,7 +35,7 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                         textAreaElement.style.height = '30px';
                         answerDiv.style.height = '100px';
                         answerDiv.style.visibility = 'visible';
-                        answerDiv.innerHTML = `${answer} <br/>${highlightAnswer} <br/>similarity ${similarityPercentage.toFixed(2)}%`;
+                        updateAnswerDiv(answerDiv, answer, highlightAnswer, similarityPercentage);
                         const isCorrectAnswer = similarityPercentage === 100;
                         if (isCorrectAnswer) {
                             textAreaElement.style.visibility = 'hidden';
@@ -135,4 +135,24 @@ function waitForEnterPress(textAreaElement) {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function updateAnswerDiv(answerDiv, answer, highlightAnswer, similarityPercentage) {
+    // Remove all child nodes
+    while (answerDiv.firstChild) {
+        answerDiv.removeChild(answerDiv.firstChild);
+    }
+
+    // Create divs and set their content
+    let answerDivElem = document.createElement("div");
+    answerDivElem.textContent = answer;
+    answerDiv.appendChild(answerDivElem);
+
+    let highlightAnswerDivElem = document.createElement("div");
+    highlightAnswerDivElem.textContent = highlightAnswer;
+    answerDiv.appendChild(highlightAnswerDivElem);
+
+    let similarityDivElem = document.createElement("div");
+    similarityDivElem.textContent = `similarity ${similarityPercentage.toFixed(2)}%`;
+    answerDiv.appendChild(similarityDivElem);
 }
