@@ -60,6 +60,7 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                         answerDiv.style.height = '0px';
                         textAreaElement.style.visibility = 'visible';
                         textAreaElement.style.height = '100px';
+                        textAreaElement.focus();
 
                     } else if (elapsedTime >= maxTime) {
                         answerDiv.style.height = '30px';
