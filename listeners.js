@@ -43,7 +43,7 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                             triggerClick(btnKnow);
                             await sleep(1750);
                         } else {
-                            textAreaElement.placeholder = 'Press Enter For Next Question';
+                            textAreaElement.placeholder = 'Press Shift For Next Question';
                         }
 
                         if (!isCorrectAnswer && similarityPercentage >= 93) {
@@ -54,13 +54,13 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                             triggerClick(btnDontKnow);
                         }
 
-                        isCorrectAnswer || await waitForEnterPress(textAreaElement);
-
+                        isCorrectAnswer || await waitForShiftPress(textAreaElement);
                         textAreaElement.placeholder = 'Type your answer and press Enter to submit (ctr for new line)';
                         answerDiv.style.visibility = 'hidden';
                         answerDiv.style.height = '0px';
                         textAreaElement.style.visibility = 'visible';
                         textAreaElement.style.height = '100px';
+
                     } else if (elapsedTime >= maxTime) {
                         answerDiv.style.height = '30px';
                         answerDiv.style.visibility = 'visible';
@@ -121,11 +121,11 @@ const triggerClick = (element) => {
     }
 };
 
-function waitForEnterPress(textAreaElement) {
+function waitForShiftPress(textAreaElement) {
     return new Promise((resolve) => {
         function onKeydown(event) {
-            if (event.key === 'Enter') {
-                textAreaElement.removeEventListener('keydown', onKeydown);  // Remove the listener once Enter is pressed
+            if (event.shiftKey) {
+                textAreaElement.removeEventListener('keydown', onKeydown);  // Remove the listener once Shift is pressed
                 resolve();
             }
         }
