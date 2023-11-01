@@ -31,7 +31,7 @@ function calculateStringSimilarity(input, answer) {
 }
 
 function sanitizeString(input) {
-    return input.toLowerCase().replace(/\s+/g, '').replaceAll('\'', '"');
+    return input.toLowerCase().replace(/\s+/g, '').replaceAll('\'', '"').replaceAll("⟨", "<");
 }
 
 // This function isnt perfect but it should work in most cases.
