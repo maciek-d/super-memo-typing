@@ -4,8 +4,8 @@ function stripHtmlTags(input) {
 }
 
 function calculateStringSimilarity(input, answer) {
-    const lowerInput = input.toLowerCase().replace(/\s+/g, '');
-    const lowerAnswer = answer.toLowerCase().replace(/\s+/g, '');
+    const lowerInput = sanitizeString(input);
+    const lowerAnswer = sanitizeString(answer);
 
     const lenInput = lowerInput.length;
     const lenAnswer = lowerAnswer.length;
@@ -28,6 +28,10 @@ function calculateStringSimilarity(input, answer) {
     const similarity = (lcsLength / maxLength) * 100;
 
     return similarity;
+}
+
+function sanitizeString(input) {
+    return input.toLowerCase().replace(/\s+/g, '').replaceAll('\'', '"');
 }
 
 // This function isnt perfect but it should work in most cases.
@@ -81,6 +85,8 @@ function getMatchingSequences(str1, str2) {
             ...recursiveFind(afterStr1, afterStr2, match.index1 + match.length, match.index2 + match.length)
         ];
     };
+    str1 = sanitizeString(str1);
+    str2 = sanitizeString(str2);
 
     return recursiveFind(str1, str2, 0, 0).sort((a, b) => a.index2 - b.index2);
 }
