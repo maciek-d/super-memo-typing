@@ -12,6 +12,7 @@
                 "*://*.supermemo.com/en/app/learn/*"
             ],
             "js": [
+                "browser-polyfill.js",
                 "stringHelpers.js",
                 "ui.js",
                 "listeners.js",
