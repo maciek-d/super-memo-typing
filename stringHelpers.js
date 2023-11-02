@@ -34,6 +34,11 @@ function sanitizeString(input) {
     return input.toLowerCase().replace(/\s+/g, '').replaceAll('\'', '"').replaceAll("⟨", "<");
 }
 
+
+function sanitizeStringHighlight(input) {
+    return input.toLowerCase().replaceAll('\'', '"').replaceAll("⟨", "<");
+}
+
 // This function isnt perfect but it should work in most cases.
 function getMatchingSequences(str1, str2) {
     let findLongestSubsequence = function (s1, s2) {
@@ -85,8 +90,8 @@ function getMatchingSequences(str1, str2) {
             ...recursiveFind(afterStr1, afterStr2, match.index1 + match.length, match.index2 + match.length)
         ];
     };
-    str1 = sanitizeString(str1);
-    str2 = sanitizeString(str2);
+    str1 = sanitizeStringHighlight(str1);
+    str2 = sanitizeStringHighlight(str2);
 
     return recursiveFind(str1, str2, 0, 0).sort((a, b) => a.index2 - b.index2);
 }

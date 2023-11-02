@@ -35,7 +35,30 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                         textAreaElement.style.height = '30px';
                         answerDiv.style.height = '100px';
                         answerDiv.style.visibility = 'visible';
-                        updateAnswerDiv(answerDiv, answer, highlightAnswer, similarityPercentage);
+
+                        const questionTextElement = document.querySelector('div.question .text');
+
+                        const clonedElement = questionTextElement.cloneNode(true);
+                        clonedElement.className = 'prev-question-text';
+
+                        const previousAnswerDiv = document.createElement('div');
+                        previousAnswerDiv.className = 'prev-question-container';
+                        previousAnswerDiv.style.position = 'fixed';
+                        previousAnswerDiv.style.zIndex = '10';
+                        previousAnswerDiv.style.top = '50px';
+                        previousAnswerDiv.style.paddingLeft = '50px';
+                        previousAnswerDiv.style.paddingTop = '70px';
+                        previousAnswerDiv.style.minHeight = '350px';
+                        previousAnswerDiv.style.width = "100%";
+                        previousAnswerDiv.style.fontSize = '120%';
+                        previousAnswerDiv.style.backgroundColor = '#FFFFFF';
+                        previousAnswerDiv.style.opacity = '1';
+
+                        previousAnswerDiv.appendChild(clonedElement);
+                        document.body.appendChild(previousAnswerDiv);
+
+
+                        updateAnswerDiv(answerDiv, answer, userAnswer, highlightAnswer, similarityPercentage);
                         const isCorrectAnswer = similarityPercentage === 100;
                         if (isCorrectAnswer) {
                             textAreaElement.style.visibility = 'hidden';
@@ -55,9 +78,13 @@ function addTextAreaListener(textAreaElement, answerDiv) {
                         }
 
                         isCorrectAnswer || await waitForShiftPress(textAreaElement);
-                        textAreaElement.placeholder = 'Type your answer and press Enter to submit (ctr for new line)';
+
+                        document.querySelector('.prev-question-container')?.remove();
+
                         answerDiv.style.visibility = 'hidden';
                         answerDiv.style.height = '0px';
+
+                        textAreaElement.placeholder = 'Type your answer and press Enter to submit (ctr for new line)';
                         textAreaElement.style.visibility = 'visible';
                         textAreaElement.style.height = '100px';
                         textAreaElement.focus();
@@ -138,19 +165,21 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function updateAnswerDiv(answerDiv, answer, highlightAnswer, similarityPercentage) {
+function updateAnswerDiv(answerDiv, answer, userAnswer, highlightAnswer, similarityPercentage) {
     // Remove all child nodes
     while (answerDiv.firstChild) {
         answerDiv.removeChild(answerDiv.firstChild);
     }
 
     // Create divs and set their content
-    let answerDivElem = document.createElement("div");
+    const answerDivElem = document.createElement("div");
+    const userAnswerDivElem = document.createElement("div");
     answerDivElem.textContent = answer;
+    userAnswerDivElem.textContent = userAnswer;
     answerDiv.appendChild(answerDivElem);
+    answerDiv.appendChild(userAnswerDivElem);
 
     answerDiv.appendChild(highlightAnswer);
-
     let similarityDivElem = document.createElement("div");
     similarityDivElem.textContent = `similarity ${similarityPercentage.toFixed(2)}%`;
     answerDiv.appendChild(similarityDivElem);
